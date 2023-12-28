@@ -1,4 +1,5 @@
 import 'package:date_picker_timeline/extra/color.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:productivity_app/modules/user_auth/login_page.dart';
@@ -14,6 +15,8 @@ import 'package:date_picker_timeline/date_picker_timeline.dart';
 import 'package:productivity_app/shared/network/local/notification.dart';
 import 'package:productivity_app/shared/styles/styles.dart';
 import 'package:productivity_app/shared/styles/thems.dart';
+
+import '../shared/common/toast.dart';
 
 class TodoLayout extends StatelessWidget {
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
@@ -160,68 +163,112 @@ class TodoLayout extends StatelessWidget {
         ],
       );
 
-  _drawer(BuildContext context) => Drawer(
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(gradient: orangeGradient),
-              padding: EdgeInsets.only(left: 15, right: 15, top: 40),
-              height: 160,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/default profile.png')),
-                        SizedBox(
-                          width: 10,
-                        ),
-                        Spacer(),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const LoginPage()),
-                            );
-                          },
-                          icon: Icon(Icons.cloud),
-                          color: Colors.grey.shade200,
-                        )
-                      ],
-                    ),
+  _drawer(BuildContext context) {
+    bool isLoggedIn;
+    if (FirebaseAuth.instance.currentUser != null) {
+      // signed in
+      isLoggedIn = true;
+    } else {
+      // signed out
+      isLoggedIn = false;
+    }
+    return Drawer(
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(gradient: orangeGradient),
+            padding: EdgeInsets.only(left: 15, right: 15, top: 40),
+            height: 160,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                          backgroundImage:
+                          AssetImage('assets/default profile.png')),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Spacer(),
+                      IconButton(
+                        onPressed: () {
+                          if (isLoggedIn) {
+                            // signed in
+                            isLoggedIn = true;
+                            // sync
+                          } else {
+                            // signed out
+                            isLoggedIn = false;
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => const LoginPage()),
+                            // );
+                            Navigator.pushNamed(context, '/login');
+                          }
+                        },
+                        icon: Icon(isLoggedIn ? Icons.cloud : Icons.login_rounded),
+                        color: Colors.grey.shade200,
+                      )
+                    ],
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Text(
-                    "SIGN IN",
-                    style: TextStyle(
-                        letterSpacing: 2, fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    "Synchronization disabled...",
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  "SIGN IN",
+                  style: TextStyle(
+                      letterSpacing: 2, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  "Synchronization disabled...",
+                ),
+              ],
             ),
-            ListTile(
-              onTap: () {
-                Get.to(ClearData());
-              },
-              leading: Icon(Icons.delete),
-              title: Text("Clear Data"),
-            ),
-            Divider(),
-            ListTile(
-              onTap: () {},
-              leading: Icon(Icons.search),
-              title: Text("Search"),
-            ),
-          ],
-        ),
-      );
+          ),
+          ListTile(
+            onTap: () {
+              Get.to(ClearData());
+            },
+            leading: Icon(Icons.delete),
+            title: Text("Clear Data"),
+          ),
+          Divider(),
+          ListTile(
+            onTap: () {},
+            leading: Icon(Icons.search),
+            title: Text("Search"),
+          ),
+          Divider(),
+          ListTile(
+            onTap: () {
+              if (isLoggedIn) {
+                // signed in
+                isLoggedIn = true;
+                FirebaseAuth.instance.signOut();
+                Navigator.pushNamed(context, '/home');
+                showToast(message: "Successfully signed out");
+                // sync
+              } else {
+                // signed out
+                isLoggedIn = false;
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(
+                //       builder: (context) => const LoginPage()),
+                // );
+                Navigator.pushNamed(context, '/login');
+              }
+            },
+            leading: Icon(isLoggedIn ? Icons.logout_rounded : Icons.login_rounded),
+            title: Text(isLoggedIn ? "Logout" : "Login"),
+          ),
+        ],
+      ),
+    );
+  }
 }

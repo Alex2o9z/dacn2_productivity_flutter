@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:productivity_app/layout/todo_layout.dart';
 import 'package:productivity_app/layout/todo_layoutcontroller.dart';
+import 'package:productivity_app/modules/user_auth/sign_up_page.dart';
 import 'package:productivity_app/shared/network/local/cashhelper.dart';
 import 'package:productivity_app/shared/network/local/notification.dart';
 import 'package:productivity_app/shared/styles/thems.dart';
@@ -63,10 +65,22 @@ class MyApp extends StatelessWidget {
       home: SplashScreen(
         child: TodoLayout(), // Replace TodoLayout() with the desired home page
       ),
-      routes: {
-        '/login': (context) => LoginPage(),
-        // '/signUp': (context) => SignUpPage(),
-        // '/home': (context) => HomePage(),
+      // routes: {
+      //   '/login': (context) => LoginPage(),
+      //   '/signUp': (context) => SignUpPage(),
+      //   '/home': (context) => TodoLayout(),
+      // },
+      onGenerateRoute: (settings) {
+        switch (settings.name) {
+          case '/login':
+            return PageTransition(child: LoginPage(), type: PageTransitionType.leftToRight);
+          case '/signup':
+            return PageTransition(child: SignUpPage(), type: PageTransitionType.leftToRight);
+          case '/home':
+            return PageTransition(child: TodoLayout(), type: PageTransitionType.leftToRight);
+          default:
+            return null;
+        }
       },
     );
   }
