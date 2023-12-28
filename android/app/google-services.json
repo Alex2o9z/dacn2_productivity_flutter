@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "852036676932",
+    "project_id": "data-producttivity-v1",
+    "storage_bucket": "data-producttivity-v1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852036676932:android:6c962ae9ce835c1320bb11",
+        "android_client_info": {
+          "package_name": "com.example.productivity_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-GT27csJuzsWrkgQgwVlz6HeBl2x8m90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:852036676932:android:d342e854a30cdc4b20bb11",
+        "android_client_info": {
+          "package_name": "com.sanashi.todoli"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-GT27csJuzsWrkgQgwVlz6HeBl2x8m90"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
