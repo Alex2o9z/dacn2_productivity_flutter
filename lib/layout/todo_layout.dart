@@ -1,6 +1,7 @@
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:productivity_app/modules/user_auth/login_page.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
 import 'package:productivity_app/layout/todo_layoutcontroller.dart';
@@ -181,7 +182,12 @@ class TodoLayout extends StatelessWidget {
                         ),
                         Spacer(),
                         IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginPage()),
+                            );
+                          },
                           icon: Icon(Icons.cloud),
                           color: Colors.grey.shade200,
                         )

@@ -2,9 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:productivity_app/modules/user_auth/sign_up_page.dart';
 import 'form_container_widget.dart';
-// import 'package:flutter_firebase/features/user_auth/presentation/pages/sign_up_page.dart';
-// import 'package:flutter_firebase/global/common/toast.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 //
@@ -36,7 +35,12 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
         title: Text("Login"),
+        centerTitle: true,
       ),
       body: Center(
         child: Padding(
@@ -134,11 +138,11 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   GestureDetector(
                     onTap: () {
-                      // Navigator.pushAndRemoveUntil(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => SignUpPage()),
-                      //       (route) => false,
-                      // );
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                            (route) => false,
+                      );
                     },
                     child: Text(
                       "Sign Up",
