@@ -10,6 +10,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+import 'modules/splash_screen/splash_screen.dart';
+import 'modules/user_auth/login_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -57,7 +59,15 @@ class MyApp extends StatelessWidget {
       theme: Themes.lightTheme,
       darkTheme: Themes.darkThem,
       themeMode: Get.isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      home: TodoLayout(),
+      // home: TodoLayout(),
+      home: SplashScreen(
+        child: TodoLayout(), // Replace TodoLayout() with the desired home page
+      ),
+      routes: {
+        '/login': (context) => LoginPage(),
+        // '/signUp': (context) => SignUpPage(),
+        // '/home': (context) => HomePage(),
+      },
     );
   }
 }
