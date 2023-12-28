@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,6 +16,8 @@ import 'package:productivity_app/shared/network/local/notification.dart';
 import 'package:productivity_app/shared/styles/thems.dart';
 import 'package:uuid/uuid.dart';
 
+import '../shared/common/toast.dart';
+
 class TodoLayoutController extends GetxController {
   List<Event> _neweventList = [];
   List<Event> get neweventList => _neweventList;
@@ -23,6 +27,14 @@ class TodoLayoutController extends GetxController {
   List<Event> get archiveeventList => _archiveeventList;
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
+
+  // Custom
+  List<Event> _neweventListSync = [];
+  List<Event> get neweventListSync => _neweventListSync;
+  List<Event> _doneeventListSync = [];
+  List<Event> get doneeventListSync => _doneeventListSync;
+  List<Event> _archiveeventListSync = [];
+  List<Event> get archiveeventListSync => _archiveeventListSync;
 
   String currentSelectedDate = DateTime.now().toString().split(' ').first;
 
@@ -285,5 +297,294 @@ class TodoLayoutController extends GetxController {
     }).catchError((error) {
       print(error.toString());
     });
+  }
+
+  // Custom Sync with Firebase
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final String _collectionName = 'events'; // Change this to your Firestore collection name
+  final FirebaseAuth auth = FirebaseAuth.instance;
+
+  // // Function to sync data with Firebase Cloud
+  // Future<void> syncWithFirebase() async {
+  //   try {
+  //     // Get the user's ID or any identifier you use to store data per user
+  //     final User? user = auth.currentUser;
+  //     String? userId = user?.uid; // Replace this with your user's ID
+  //
+  //     // Clear existing data in Firestore
+  //     await _firestore.collection(_collectionName).doc(userId).delete();
+  //
+  //     // Upload new data to Firestore
+  //     await _firestore.collection(_collectionName).doc(userId).set({
+  //       'newEvents': _neweventList.map((event) => event.toJson()).toList(),
+  //       'doneEvents': _doneeventList.map((event) => event.toJson()).toList(),
+  //       'archiveEvents': _archiveeventList.map((event) => event.toJson()).toList(),
+  //       'currentIndex': _currentIndex,
+  //       'currentSelectedDate': currentSelectedDate,
+  //     });
+  //
+  //     print('Data synced with Firebase');
+  //     showToast(message: 'Data synced with Firebase');
+  //   } catch (error) {
+  //     print('Error syncing data with Firebase: $error');
+  //     showToast(message: 'Error syncing data with Firebase: $error');
+  //   }
+  // }
+  //
+  // // Function to load data from Firebase Cloud
+  // Future<void> loadFromFirebase() async {
+  //   try {
+  //     final User? user = auth.currentUser;
+  //     String? userId = user?.uid; // Replace this with your user's ID
+  //
+  //     var document = await _firestore.collection(_collectionName).doc(userId).get();
+  //
+  //     if (document.exists) {
+  //       // Clear existing data
+  //       _neweventList = [];
+  //       _doneeventList = [];
+  //       _archiveeventList = [];
+  //
+  //       // Load data from Firestore
+  //       var data = document.data()!;
+  //       _neweventList = (data['newEvents'] as List).map((e) => Event.fromJson(e)).toList();
+  //       _doneeventList = (data['doneEvents'] as List).map((e) => Event.fromJson(e)).toList();
+  //       _archiveeventList = (data['archiveEvents'] as List).map((e) => Event.fromJson(e)).toList();
+  //       _currentIndex = data['currentIndex'];
+  //       currentSelectedDate = data['currentSelectedDate'];
+  //
+  //       update();
+  //       print('Data loaded from Firebase');
+  //       showToast(message: 'Data loaded from Firebase');
+  //     } else {
+  //       print('No data found in Firestore');
+  //       showToast(message: 'No data found in Firestore');
+  //     }
+  //   } catch (error) {
+  //     print('Error loading data from Firebase: $error');
+  //     showToast(message: 'Error loading data from Firebase: $error');
+  //   }
+  // }
+  // Custom Sync with Firebase LASTED FUNCTION
+  // Future<void> syncWithFirebase() async {
+  //   try {
+  //     // Get the user's ID or any identifier you use to store data per user
+  //     final User? user = auth.currentUser;
+  //     String? userId = user?.uid; // Replace this with your user's ID
+  //
+  //     _neweventListSync = [];
+  //     _doneeventListSync = [];
+  //     _archiveeventListSync = [];
+  //     await dbHelper.database
+  //         .rawQuery(
+  //         "select * from $eventTable")
+  //         .then((value) {
+  //       value.forEach((element) {
+  //         if (element['status'] == "new")
+  //           _neweventListSync.add(Event.fromJson(element));
+  //         else if (element['status'] == "done")
+  //           _doneeventListSync.add(Event.fromJson(element));
+  //         else if (element['status'] == "archive")
+  //           _archiveeventListSync.add(Event.fromJson(element));
+  //       });
+  //       _neweventListSync.length > 1
+  //       //NOTE if does not have any new event
+  //           ? _neweventListSync.sort((a, b) {
+  //         return DateTime.parse(
+  //             a.date.toString() + " " + a.starttime.toString())
+  //             .compareTo(DateTime.parse(
+  //             b.date.toString() + " " + b.starttime.toString()));
+  //       }) : [];
+  //     }).then((value) {
+  //
+  //     });
+  //
+  //     // Clear existing data in Firestore
+  //     await _firestore.collection(_collectionName).doc(userId).delete();
+  //
+  //     // Upload all events to Firestore
+  //     await _firestore.collection(_collectionName).doc(userId).set({
+  //       'newEvents': _neweventListSync.map((event) => event.toJson()).toList(),
+  //       'doneEvents': _doneeventListSync.map((event) => event.toJson()).toList(),
+  //       'archiveEvents': _archiveeventListSync.map((event) => event.toJson()).toList(),
+  //     });
+  //
+  //     print('Data synced with Firebase');
+  //     showToast(message: 'Data synced with Firebase');
+  //   } catch (error) {
+  //     print('Error syncing data with Firebase: $error');
+  //     showToast(message: 'Error syncing data with Firebase: $error');
+  //   }
+  // }
+
+// // Function to load all data from Firebase Cloud
+//   Future<void> loadAllFromFirebase() async {
+//     try {
+//       final User? user = auth.currentUser;
+//       String? userId = user?.uid; // Replace this with your user's ID
+//
+//       var document = await _firestore.collection(_collectionName).doc(userId).get();
+//
+//       if (document.exists) {
+//         // Clear existing data
+//         _neweventList = [];
+//         _doneeventList = [];
+//         _archiveeventList = [];
+//
+//         // Load all data from Firestore
+//         var data = document.data()!;
+//         _neweventList = (data['newEvents'] as List).map((e) => Event.fromJson(e)).toList();
+//         _doneeventList = (data['doneEvents'] as List).map((e) => Event.fromJson(e)).toList();
+//         _archiveeventList = (data['archiveEvents'] as List).map((e) => Event.fromJson(e)).toList();
+//
+//         update();
+//         print('All data loaded from Firebase');
+//         showToast(message: 'All data loaded from Firebase');
+//       } else {
+//         print('No data found in Firestore');
+//         showToast(message: 'No data found in Firestore');
+//       }
+//     } catch (error) {
+//       print('Error loading data from Firebase: $error');
+//       showToast(message: 'Error loading data from Firebase: $error');
+//     }
+//   }
+  // Function to load data from Firebase and store in SQLite
+  Future<void> loadFromFirebaseAndStoreInSQLite() async {
+    try {
+      // Get the user's ID or any identifier you use to store data per user
+      final User? user = auth.currentUser;
+      String? userId = user?.uid; // Replace this with your user's ID
+
+      // Clear existing data in SQLite
+      await dbHelper.database.rawDelete("DELETE FROM $eventTable");
+
+      // Load all data from Firestore
+      var document = await _firestore.collection(_collectionName).doc(userId).get();
+
+      if (document.exists) {
+        // Load data from Firestore
+        var data = document.data()!;
+
+        // Extract events from the data
+        List<Event> newEvents = (data['newEvents'] as List).map((e) => Event.fromJson(e)).toList();
+        List<Event> doneEvents = (data['doneEvents'] as List).map((e) => Event.fromJson(e)).toList();
+        List<Event> archiveEvents = (data['archiveEvents'] as List).map((e) => Event.fromJson(e)).toList();
+
+        // Insert events into SQLite
+        await insertEventsIntoSQLite(newEvents);
+        await insertEventsIntoSQLite(doneEvents);
+        await insertEventsIntoSQLite(archiveEvents);
+
+        print('Data loaded from Firebase and stored in SQLite');
+        showToast(message: 'Data loaded from Firebase and stored in SQLite');
+      } else {
+        print('No data found in Firestore');
+        showToast(message: 'No data found in Firestore');
+      }
+    } catch (error) {
+      print('Error loading data from Firebase and storing in SQLite: $error');
+      showToast(message: 'Error loading data from Firebase and storing in SQLite: $error');
+    }
+  }
+
+  //FINAL SYNC FUNCTION
+  Future<void> syncWithFirebase() async {
+    try {
+      // Get the user's ID or any identifier you use to store data per user
+      final User? user = auth.currentUser;
+      String? userId = user?.uid; // Replace this with your user's ID
+
+      // DOWNLOAD
+      // Load all data from Firestore
+      var document = await _firestore.collection(_collectionName).doc(userId).get();
+
+      if (document.exists) {
+        // Load data from Firestore
+        var data = document.data()!;
+
+        // Extract events from the data
+        List<Event> newEvents = (data['newEvents'] as List).map((e) => Event.fromJson(e)).toList();
+        List<Event> doneEvents = (data['doneEvents'] as List).map((e) => Event.fromJson(e)).toList();
+        List<Event> archiveEvents = (data['archiveEvents'] as List).map((e) => Event.fromJson(e)).toList();
+
+        // Insert events into SQLite
+        await insertEventsIntoSQLite(newEvents);
+        await insertEventsIntoSQLite(doneEvents);
+        await insertEventsIntoSQLite(archiveEvents);
+
+        print('Data loaded from Firebase and stored in SQLite');
+        showToast(message: 'Data loaded from Firebase and stored in SQLite');
+      } else {
+        print('No data found in Firestore');
+        showToast(message: 'No data found in Firestore');
+      }
+
+      // UPLOAD
+      _neweventListSync = [];
+      _doneeventListSync = [];
+      _archiveeventListSync = [];
+      await dbHelper.database
+          .rawQuery(
+          "select * from $eventTable")
+          .then((value) {
+        value.forEach((element) {
+          if (element['status'] == "new")
+            _neweventListSync.add(Event.fromJson(element));
+          else if (element['status'] == "done")
+            _doneeventListSync.add(Event.fromJson(element));
+          else if (element['status'] == "archive")
+            _archiveeventListSync.add(Event.fromJson(element));
+        });
+        _neweventListSync.length > 1
+        //NOTE if does not have any new event
+            ? _neweventListSync.sort((a, b) {
+          return DateTime.parse(
+              a.date.toString() + " " + a.starttime.toString())
+              .compareTo(DateTime.parse(
+              b.date.toString() + " " + b.starttime.toString()));
+        }) : [];
+      }).then((value) {
+
+      });
+
+      // Clear existing data in Firestore
+      await _firestore.collection(_collectionName).doc(userId).delete();
+
+      // Upload all events to Firestore
+      await _firestore.collection(_collectionName).doc(userId).set({
+        'newEvents': _neweventListSync.map((event) => event.toJson()).toList(),
+        'doneEvents': _doneeventListSync.map((event) => event.toJson()).toList(),
+        'archiveEvents': _archiveeventListSync.map((event) => event.toJson()).toList(),
+      });
+
+      print('Data synced with Firebase');
+      showToast(message: 'Data synced with Firebase');
+    } catch (error) {
+      print('Error syncing data with Firebase: $error');
+      showToast(message: 'Error syncing data with Firebase: $error');
+    }
+  }
+
+  // Function to insert events into SQLite
+  Future<void> insertEventsIntoSQLite(List<Event> events) async {
+    for (Event event in events) {
+      var dbclient = await dbHelper.database;
+      int id = await dbclient.insert(eventTable, event.toJson());
+      // You can handle the inserted ID or perform additional actions if needed
+    }
+  }
+
+  Future<void> deleteFirebaseData() async {
+    try {
+      final User? user = auth.currentUser;
+      String? userId = user?.uid;
+      // Clear existing data in Firestore
+      await _firestore.collection(_collectionName).doc(userId).delete();
+      showToast(message: 'Successfully deleted cloud data from Firebase');
+    } catch (error) {
+      print('Error deleting data from Firebase: $error');
+      showToast(message: 'Error deleting data from Firebase: $error');
+    }
   }
 }

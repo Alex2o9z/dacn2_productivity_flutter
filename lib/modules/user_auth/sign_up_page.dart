@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:productivity_app/services/database.dart';
 import 'firebase_auth_implementation/firebase_auth_services.dart';
 import '../../shared/common/toast.dart';
 import 'login_page.dart';
@@ -142,6 +144,9 @@ class _SignUpPageState extends State<SignUpPage> {
     String password = _passwordController.text;
 
     User? user = await _auth.signUpWithEmailAndPassword(email, password);
+
+    DatabaseService databaseService = DatabaseService();
+    await databaseService.createUserData(user!.uid, username);
 
     setState(() {
       isSigningUp = false;

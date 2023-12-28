@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:date_picker_timeline/extra/color.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:productivity_app/modules/user_auth/login_page.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:intl/intl.dart';
 import 'package:productivity_app/layout/todo_layoutcontroller.dart';
@@ -20,6 +20,7 @@ import '../shared/common/toast.dart';
 
 class TodoLayout extends StatelessWidget {
   GlobalKey<ScaffoldState> _scaffoldkey = GlobalKey<ScaffoldState>();
+  var todocontroller = Get.find<TodoLayoutController>();
 
   @override
   Widget build(BuildContext context) {
@@ -164,13 +165,30 @@ class TodoLayout extends StatelessWidget {
       );
 
   _drawer(BuildContext context) {
-    bool isLoggedIn;
-    if (FirebaseAuth.instance.currentUser != null) {
-      // signed in
+    bool isLoggedIn = false;
+    // String username = "";
+
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final User? user = auth.currentUser;
+
+    if (user != null) {
       isLoggedIn = true;
-    } else {
-      // signed out
-      isLoggedIn = false;
+
+      // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+      // final docRef = _firestore.collection("users").doc(user.uid);
+      //
+      // docRef.get().then((DocumentSnapshot doc) {
+      //   if (doc.exists) {
+      //     // Ensure you update the state within the build method
+      //     // to reflect changes in the UI
+      //     username = doc['name'];
+      //     print(username);
+      //   } else {
+      //     print('Document does not exist');
+      //   }
+      // }).catchError((e) {
+      //   print("Error getting document: $e");
+      // });
     }
     return Drawer(
       child: Column(
@@ -194,11 +212,12 @@ class TodoLayout extends StatelessWidget {
                       ),
                       Spacer(),
                       IconButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (isLoggedIn) {
                             // signed in
                             isLoggedIn = true;
                             // sync
+                            await todocontroller.syncWithFirebase();
                           } else {
                             // signed out
                             isLoggedIn = false;
@@ -220,12 +239,14 @@ class TodoLayout extends StatelessWidget {
                   height: 15,
                 ),
                 Text(
+                  // isLoggedIn ? username : "SIGN IN",
                   "SIGN IN",
-                  style: TextStyle(
-                      letterSpacing: 2, fontWeight: FontWeight.bold),
+                  style: TextStyle(letterSpacing: 2, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  "Synchronization disabled...",
+                  isLoggedIn
+                      ? "Synchronization enabled..."
+                      : "Synchronization disabled...",
                 ),
               ],
             ),
@@ -235,8 +256,19 @@ class TodoLayout extends StatelessWidget {
               Get.to(ClearData());
             },
             leading: Icon(Icons.delete),
-            title: Text("Clear Data"),
+            title: Text("Clear Local Data"),
           ),
+          Visibility(
+            visible: isLoggedIn, // Set this to your isloggedin variable
+            child: ListTile(
+              onTap: () async {
+                await todocontroller.deleteFirebaseData();
+              },
+              leading: Icon(Icons.delete),
+              title: Text("Clear Cloud Data"),
+            ),
+          ),
+
           Divider(),
           ListTile(
             onTap: () {},
